@@ -1,3 +1,4 @@
+#361 Patrick Moore
 from tkinter import *
 from PIL import Image, ImageTk
 from functools import partial

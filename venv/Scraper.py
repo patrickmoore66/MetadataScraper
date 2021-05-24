@@ -92,7 +92,7 @@ def bad_request(error):
 
 @app.errorhandler(500)
 def server_error(error):
-    return "Something went wrong, sorry!", 500
+    return "Something went wrong on our end, sorry!", 500
 
 #listener
 
