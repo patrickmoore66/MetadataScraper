@@ -12,6 +12,19 @@ app=Flask(__name__)
 
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
+
+def label_data(labeled, exifdata):
+    for (key,val) in exifdata.items():
+        labeled[TAGS.get(key)] = val
+
+    #unpack GPS info using get_gps function
+    gps = get_gps()
+    if labeled.get('GPSInfo', False) != False:
+        latitude = "Latitude: " + str(gps['GPSLatitude'])
+        longitutde = "Longitude: "+ str(gps['GPSLongitude'])
+        labeled['GPSInfo'] = latitude + " , " + longitutde
+    return
+
 def get_gps():
     gps_info = {}
     gps_image = Image.open('temp.jpg')
@@ -37,8 +50,6 @@ def root():
     result = {}
 
     #get image url from request
-    if request.method != 'GET':
-        return make_response('Incorrect query', 400)
     headers = {"Content-Type": "application/json"}
     image_url = request.args.get('url')
     print("IMAGE URL")
@@ -49,13 +60,13 @@ def root():
         print("Bad Url")
         return make_response('Invalid URL', 400)
 
-    #read image data using PIL
+    #open image and create file using write()
     try:
         urllib.request.urlretrieve(image_url, 'temp.jpg')
     except:
         return make_response('Unable to open jpg at url given, please check the provided url is correct', 400)
 
-
+    # read image data using PIL
     image = Image.open('temp.jpg')
     exifdata = image.getexif()
     print('EXIF DATA')
@@ -67,22 +78,12 @@ def root():
         response = {'Metadata': 'None'}
         return jsonpickle.encode(response)
 
-
-    for (key,val) in exifdata.items():
-        labeled[TAGS.get(key)] = val
-
-    #unpack GPS info
-    gps = get_gps()
-    if labeled.get('GPSInfo', False) != False:
-        labeled['GPSInfo'] ="Latitude: " + str(gps['GPSLatitude']) + " , " + "Longitude: "+ str(gps['GPSLongitude'])
-
-    print("Result")
-    print(labeled)
+    label_data(labeled, exifdata)
 
     return jsonpickle.encode(labeled)
 
 #routes
-@app.route('/', methods = ['POST', 'HEAD', 'PUT', 'DeLETE'])
+@app.route('/', methods = ['POST', 'HEAD', 'PUT', 'DELETE'])
 def base():
     return jsonpickle.encode({'Please use a GET request to provide the url of a jpg'})
 
