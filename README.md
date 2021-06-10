@@ -1,0 +1,2 @@
+# MetadataScraper
+Contains a project and a Scraper. The project is a simple tkinter GUI that asks the user to input the url of an image, and then makes calls to a service that displays the image with a  border and a service that returns any metadata associated with the photo as a json object. The scraper is built with flask, and takes a url, uses the PIL library to access the metadata of the image, and returns it as a json object. 
